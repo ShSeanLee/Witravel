@@ -1,0 +1,156 @@
+[스프링 프로젝트와 오라클 클라우드 DB 연결하기]
+
+1. sql developer 툴에서 오라클 클라우드 DB와 접속하기
+ * DB 공유 방법 : 다운받은 Wallet_DB이름.zip 파일을 팀원들에게 배포함
+ * 접속할 공유 DB의 패스워드도 공유함
+
+2. sql developer 에서 클라우드 DB의 버전 확인함
+  select * from v$version; 
+  > 19.0.0.0 으로 확인될 것임
+ * 오라클 19버전은 jdk11 이상에서만 사용할 수 있음
+
+3. openjdk 11 버전 다운로드 받음
+ * zip 파일 또는 installer.exe 둘 다 상관없음
+ * zip 권장 : 압축만 풀면 됨
+
+4. 윈도우 : C:\\Program Files\\java 폴더 아래에 압축 풀은 openjdk 폴더 복사함
+  > 압축 푼 폴더 안의 'jdk-11.0.2' 폴더 복사함
+  > 폴더까지의 경로 복사함 : C:\Program Files\Java\jdk-11.0.2
+
+5. 환경변수 'PATH' 의 JAVA_HOME 값 변경함
+
+6. 명령 프롬프트나 윈도우 파워셀에서 자바 버전 확인함
+  > javac -version
+
+7. 이클립스 상위 버전 다운받기 : 2021-09 권장
+  > 압축 풀기
+  > 실행
+
+8. 이클립스 : help 메뉴 > Eclipse Marketplace 실행
+  > 검색 필드 : sts 입력 > 엔터
+  > Spring Tool 3 Add on Spring Tool 4.3.x 설치
+
+9. Tomcat 9 다운받기 
+  > 압축풀기
+
+10. 이클립스 tools(도구) 메뉴 
+  > Preferences 선택 
+  	> Server > Runtime Environment > 톰켓9 등록 add
+ 	> Java > Install JREs > 기존 1.8 것 remove > Add > jdk11 폴더 지정
+
+11. 프로젝트 우클릭 > properties(속성) 
+  > project pacet : java 11, Dynamic web 4.0, runtime was9
+  > java build path : unbounded 항목 삭제
+	> add library : Server runtime, JRE (Java SE-11) 라이브러리 지정
+	
+12. root-context.xml : datasource 부분 수정
+
+	<!-- oracle cloud db 연결 -->
+	<bean class="com.zaxxer.hikari.HikariConfig" id="hikariConfig">
+		<property name="driverClassName"
+			value="oracle.jdbc.OracleDriver" />
+		<property name="jdbcUrl"
+			value="jdbc:oracle:thin:@oradb_high?TNS_ADMIN=C:\\Wallet_ORADB" />
+		<property name="username" value="admin" />
+		<property name="password" value="db패스워드" />
+	</bean>
+
+	<bean class="com.zaxxer.hikari.HikariDataSource"
+		destroy-method="close" id="realDataSource">
+		<constructor-arg ref="hikariConfig"></constructor-arg>
+	</bean>
+
+13. pom.xml : 오라클 클라우드 dependency 추가, ojdbc10 추가
+	> java 버전 11 로 모두 찾아서 수정
+
+	<!-- java 11 -->
+	<!-- https://mvnrepository.com/artifact/javax.xml/jaxb-api -->
+	<dependency>
+		<groupId>javax.xml</groupId>
+		<artifactId>jaxb-api</artifactId>
+		<version>2.1</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
+	<dependency>
+		<groupId>javax.servlet</groupId>
+		<artifactId>javax.servlet-api</artifactId>
+		<version>4.0.1</version>
+		<scope>provided</scope>
+	</dependency>	
+
+	<!-- https://mvnrepository.com/artifact/javax.servlet.jsp/jsp-api -->
+	<dependency>
+		<groupId>javax.servlet.jsp</groupId>
+		<artifactId>jsp-api</artifactId>
+		<version>2.2</version>
+		<scope>provided</scope>
+	</dependency>
+
+<!-- https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc10 -->
+		<dependency>
+		    <groupId>com.oracle.database.jdbc</groupId>
+		    <artifactId>ojdbc10</artifactId>
+		    <version>19.10.0.0</version>
+		</dependency>
+		
+		<!-- oracle cloud wallet -->	
+		<!-- https://mvnrepository.com/artifact/com.oracle.database.security/oraclepki -->
+		<dependency>
+		    <groupId>com.oracle.database.security</groupId>
+		    <artifactId>oraclepki</artifactId>
+		    <version>19.10.0.0</version>
+		</dependency>
+
+        <!-- ttps://mvnrepository.com/artifact/com.oracle.database.security/osdt_cert -->
+	<dependency>
+		    <groupId>com.oracle.database.security</groupId>
+		    <artifactId>osdt_cert</artifactId>
+		    <version>19.10.0.0</version>
+	</dependency>
+
+        <!-- ttps://mvnrepository.com/artifact/com.oracle.database.security/osdt_core -->
+	<dependency>
+		    <groupId>com.oracle.database.security</groupId>
+		    <artifactId>osdt_core</artifactId>
+		    <version>19.10.0.0</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/com.zaxxer/HikariCP -->
+	<dependency>
+		    <groupId>com.zaxxer</groupId>
+		    <artifactId>HikariCP</artifactId>
+		    <version>4.0.3</version>
+	</dependency>
+
+	<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                    <compilerArgument>-Xlint:all</compilerArgument>
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
+                </configuration>
+         </plugin>
+         <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-war-plugin</artifactId>
+		<version>3.3.1</version>
+	</plugin>		
+
+14. 프로젝트 우클릭 > Maven > update project
+
+15. Servers 뷰 > new server 등록 : was9, 프로젝트 Add
+	> port 번호 수정, publish 설정
+	> start
+	> 브라우저에서 확인
+
+
+
+
+
+
+

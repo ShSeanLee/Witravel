@@ -1,17 +1,70 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React from "react";
+import styled from "styled-components";
+
+const Account = styled.div`
+  position: relative;
+  display: flex;
+  padding-top: 30px;
+`;
+const Name = styled.div`
+  position: relative;
+  padding: 4px 50px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: "paybooc-Light", sans-serif;
+`;
+const Bank = styled.div`
+  position: relative;
+  padding: 4px 50px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: "paybooc-Light", sans-serif;
+`;
+const Num = styled.div`
+  position: relative;
+  padding: 4px 50px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: "paybooc-Light", sans-serif;
+`;
+
+const Withdrawbutton = styled.div`
+  position: relative;
+  padding: 4px 50px;
+  color: #f80d38;
+  border: none;
+  font-size: 15px;
+  display: inline-block;
+  font-family: "paybooc-Light", sans-serif;
+  text-decoration: none;
+  font-weight: 900;
+  transition: 0.25s;
+`;
+const AccountBtn = styled.div`
+  position: relative;
+  background-color: #100db1;
+  color: #ffffff;
+  font-size: 12px;
+  border: none;
+  display: inline-block;
+  padding: 5px 30px;
+  border-radius: 15px;
+  font-family: "paybooc-Light", sans-serif;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.25s;
+`;
 
 const Example = () => {
   const genTransId = () => {
     let countnum = Math.floor(Math.random() * 1000000000) + 1;
-    let transId = process.env.REACT_APP_TRANCE_ID + countnum; //이용기과번호 본인것 입력
+    let transId = process.env.REACT_APP_TRANCE_ID + countnum; //이용기관번호
     console.log(transId);
     return transId;
   };
 
   const onClickHandle = () => {
-    //출금 이체 발생시키기
-    //data params json
     const accessToken = localStorage.getItem("accessToken");
 
     const data = {
@@ -87,11 +140,13 @@ const Example = () => {
   };
 
   return (
-    <div>
-      <div>
-        <button onClick={onClickHandle}>송금하기</button>
-      </div>
-    </div>
+    <Account>
+      <Name>김여행</Name>
+      <Bank>국민은행</Bank>
+      <Num>120220124488941109411084</Num>
+      <Withdrawbutton onClick={onClickHandle}>송금하기</Withdrawbutton>
+      <AccountBtn>대표계좌</AccountBtn>
+    </Account>
   );
 };
 
